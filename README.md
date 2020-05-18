@@ -132,5 +132,30 @@ else if(distRatios.size()%2 == 0)
 ## FP.5 Task : Lidar Performance Evaluation 
 I faced 2 abnormal values (negative values) in process of TTC with lidar for two frames without noise filtering. In my opinion that’s happened because lidar has 360 rotation degree. So some frames include outliers which came from the car which behind of us. When these lidar points projected into the 2D image plane, the cluster of outliers corresponds to the bounding box coordinates of preceding vehicle. If I use my outlier removing filter, negative values are gone. I want to show one example of two abnormal situation.
 
+### Frame 12, without outlier removing filter
+<img src="images/withoutFilter.png"/>
 
+### Frame 12, with outlier removing filter 
+<img src="images/withFilter.png"/>
+
+
+## FP.6 Task : Camera Performance Evaluation
+When we consider the traffic scenario in the default data set, it is expected that there is not much deviation between the collision times calculated using images from the camera. Therefore, I have examined the standard deviation in detector / descriptor analysis.
+
+<img src="images/data.jpg" width="900" height="600" />
+
+My result data has “inf” and “nan” values for some detector/descriptor types. In C++, it returns “inf” value if a number divide by zero.
+
+In my code, camera TTC computed by this line;
+```c++
+TTC = -dT / (1 - medianDistRatio);
+```
+
+So I got inf values when medianDistRatio is equal to 1. In my opinion ego car and preceding car keep their distance which between themselves when velocities of two cars are equal to zero or when two car has same velocity. For this reason, the distance ratio is equal to 1 compared to the keypoints in the previous frame and current frame.
+According to my results (if I consider computation speed and low standard deviation) detector/descriptor combination winner of final stage is <b>FAST detector/BRISK descriptor</b>. When think for later works, the combination has 1 inf value, however lidar can help to camera for this type of situations. If I get inf or nan value from camera ttc system, I trust lidar measurements or combine two sensors with some methods like kalman filter.
+
+** Top 3 Detector/Descriptor Results in my midterm report
+1)    FAST/ORB
+2)    FAST/BRIEF
+3)    FAST/BRISK
 
